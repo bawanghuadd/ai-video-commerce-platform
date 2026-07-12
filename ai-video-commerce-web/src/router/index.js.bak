@@ -1,0 +1,277 @@
+import {
+  createRouter,
+  createWebHistory,
+} from 'vue-router'
+
+import MainLayout from '../layouts/MainLayout.vue'
+
+import LoginView from '../views/LoginView.vue'
+import DashboardView from '../views/DashboardView.vue'
+import ProductView from '../views/ProductView.vue'
+import ContentAnalysisView from '../views/ContentAnalysisView.vue'
+import ModulePlaceholderView from '../views/ModulePlaceholderView.vue'
+import ContentCreationView from '../views/ContentCreationView.vue'
+import TrafficAnalysisView from '../views/TrafficAnalysisView.vue'
+import ScriptManagementView from '../views/ScriptManagementView.vue'
+import VideoManagementView from '../views/VideoManagementView.vue'
+import KnowledgeBaseView from '../views/KnowledgeBaseView.vue'
+import SystemSettingsView from '../views/SystemSettingsView.vue'
+
+const routes = [
+  /* ==============================
+     登录页面
+  ================================ */
+
+  {
+    path: '/login',
+    name: 'login',
+    component: LoginView,
+    meta: {
+      title: '用户登录',
+      requiresAuth: false,
+    },
+  },
+
+  /* ==============================
+     后台管理系统
+  ================================ */
+
+  {
+    path: '/',
+    component: MainLayout,
+    meta: {
+      requiresAuth: true,
+    },
+
+    children: [
+      /* 默认进入数据概览 */
+      {
+        path: '',
+        redirect: {
+          name: 'dashboard',
+        },
+      },
+
+      /* 数据概览 */
+      {
+        path: 'dashboard',
+        name: 'dashboard',
+        component: DashboardView,
+        meta: {
+          title: '数据概览',
+          requiresAuth: true,
+        },
+      },
+
+      /* 商品管理 */
+      {
+        path: 'products',
+        name: 'products',
+        component: ProductView,
+        meta: {
+          title: '商品管理',
+          requiresAuth: true,
+        },
+      },
+      //内容创作
+      {
+  path: 'content-creation',
+  name: 'content-creation',
+  component: ContentCreationView,
+  meta: {
+    title: '内容创作',
+    requiresAuth: true,
+  },
+},
+
+      /* 内容拆解 */
+      {
+        path: 'content-analysis',
+        name: 'content-analysis',
+        component: ContentAnalysisView,
+        meta: {
+          title: '内容拆解',
+          requiresAuth: true,
+        },
+      },
+
+      /* 脚本分镜 */
+      // {
+      //   path: 'scripts',
+      //   name: 'scripts',
+      //   component: ModulePlaceholderView,
+      //   meta: {
+      //     title: '脚本分镜',
+      //     description:
+      //       '管理秒级脚本、视频分镜和文案内容',
+      //     requiresAuth: true,
+      //   },
+      // },
+      {
+  path: 'scripts',
+  name: 'scripts',
+  component: ScriptManagementView,
+  meta: {
+    title: '脚本分镜',
+    requiresAuth: true,
+  },
+},
+ 
+
+      /* 视频管理 */
+      // {
+      //   path: 'videos',
+      //   name: 'videos',
+      //   component: ModulePlaceholderView,
+      //   meta: {
+      //     title: '视频管理',
+      //     description:
+      //       '管理视频生产任务、审核状态和发布进度',
+      //     requiresAuth: true,
+      //   },
+      // },
+      {
+  path: 'videos',
+  name: 'videos',
+  component: VideoManagementView,
+  meta: {
+    title: '视频管理',
+    requiresAuth: true,
+  },
+},
+
+      /* 投流分析 */
+      {
+        path: 'traffic-analysis',
+        name: 'traffic-analysis',
+        component: TrafficAnalysisView,
+        meta: {
+          title: '投流分析',
+          description:
+            '管理广告投放数据和投流优化结果',
+          requiresAuth: true,
+        },
+      },
+
+      /* 知识库 */
+      // {
+      //   path: 'knowledge-base',
+      //   name: 'knowledge-base',
+      //   component: ModulePlaceholderView,
+      //   meta: {
+      //     title: '知识库',
+      //     description:
+      //       '沉淀业务知识、提示词和高质量内容案例',
+      //     requiresAuth: true,
+      //   },
+      // },
+      {
+  path: 'knowledge-base',
+  name: 'knowledge-base',
+  component: KnowledgeBaseView,
+  meta: {
+    title: '知识库',
+    requiresAuth: true,
+  },
+},
+
+      /* 系统设置 */
+      // {
+      //   path: 'settings',
+      //   name: 'settings',
+      //   component: ModulePlaceholderView,
+      //   meta: {
+      //     title: '系统设置',
+      //     description:
+      //       '管理系统配置、账号和权限信息',
+      //     requiresAuth: true,
+      //   },
+      // },
+      {
+  path: 'settings',
+  name: 'settings',
+  component: SystemSettingsView,
+  meta: {
+    title: '系统设置',
+    requiresAuth: true,
+  },
+},
+    ],
+  },
+
+  /* ==============================
+     未匹配路由
+  ================================ */
+
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: {
+      name: 'dashboard',
+    },
+  },
+]
+
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes,
+
+  scrollBehavior() {
+    return {
+      top: 0,
+      left: 0,
+    }
+  },
+})
+
+
+/* ==============================
+   登录权限守卫
+================================ */
+
+router.beforeEach((to) => {
+  const token =
+    localStorage.getItem('access_token') ||
+    localStorage.getItem('token')
+
+  const requiresAuth =
+    to.matched.some(
+      (routeRecord) =>
+        routeRecord.meta.requiresAuth,
+    )
+
+  /* 没有登录，禁止进入后台页面 */
+  if (requiresAuth && !token) {
+    return {
+      name: 'login',
+      query: {
+        redirect: to.fullPath,
+      },
+    }
+  }
+
+  /* 已经登录，再访问登录页时进入首页 */
+  if (to.name === 'login' && token) {
+    return {
+      name: 'dashboard',
+    }
+  }
+
+  return true
+})
+
+
+/* ==============================
+   页面标题
+================================ */
+
+router.afterEach((to) => {
+  const pageTitle =
+    to.meta.title || 'AI短视频电商平台'
+
+  document.title =
+    `${pageTitle} - AI短视频电商平台`
+})
+
+
+export default router
