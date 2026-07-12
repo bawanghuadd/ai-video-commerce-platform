@@ -13,6 +13,26 @@
 
 Phase 0 不实施任何修复。后续应先冻结接口兼容边界和补最小回归测试，再逐层移动职责，避免“大爆炸式”重写。
 
+### 1.1 Phase 1 当前状态更新（2026-07-13）
+
+Phase 1 开始前以当前 HEAD `f6afb35` 重新复核 Phase 0 结论，结果如下：
+
+| Phase 0 结论 | 当前状态 | 复核结果 |
+|---|---|---|
+| `ProductView.vue` 含两整段注释旧脚本 | 已修复 | 用户提交 `f6afb35 refactor(products): standardize product view` 已删除前 1181 行注释旧实现，活动页面继续使用公共异步列表、分页、错误、确认和日期工具 |
+| `products.js` 使用旧 request config 写法 | 仍存在 | 仍使用 `request({ url, method })`，且 import 未带 `.js` 扩展名 |
+| 成功响应契约不明确 | 仍存在 | `request.js` 当前返回 `response.data`（后端 envelope），页面仍有 `response.data`/兼容解包逻辑；Phase 1 将冻结为直接返回业务 `data` |
+| Login 直接处理认证 Token | 部分修复 | 登录/注册已经通过 Pinia Store；但记住账号仍由 Login 直接操作 `localStorage` |
+| Auth Store 能力不完整 | 审计结论已失效 | 当前 Store 已具备 `login/register/loadCurrentUser/logout`，但存储实现仍内嵌且保留双 token key |
+| 内容拆解、脚本、视频未使用公共能力 | 审计结论已失效 | 三个页面均已使用 `useAsyncList`、`usePagination`、`getApiErrorMessage`、`confirmDelete` 和公共日期工具 |
+| 认证存储散落 | 仍存在 | Store、Router、Request、MainLayout、Login 和 KnowledgeFormDialog 仍直接访问认证相关 key |
+| 平台/状态常量重复 | 仍存在 | 四个页面仍各自声明平台数组；已有 `constants/platforms.js` 尚无调用方 |
+| Git 跟踪 `.bak` | 仍存在 | 当前仍跟踪 3 个 `.bak` 文件 |
+| 活动代码存在中文乱码 | 已修复/未复现 | 对当前活动前后端代码扫描常见乱码特征无命中，构建和 compileall 也未报告编码错误 |
+| 后端缺少安全启动门禁 | 仍存在 | 仍会在启动时 `create_all()` 并创建固定 `admin/123456` |
+
+Phase 1 开始时未提交内容只有本计划和用户提供的 Phase 1 主指令文档，未发现未提交业务源码；两份文档已通过独立保护提交保存。后续实现继续以当前代码为准，不恢复 Phase 0 已删除的旧实现。
+
 ## 2. 当前架构概览
 
 ### 2.1 前端
