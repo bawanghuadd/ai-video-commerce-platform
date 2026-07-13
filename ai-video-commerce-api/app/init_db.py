@@ -1,12 +1,13 @@
 from sqlalchemy import select
 
+from app.config import settings
 from app.database import (
     Base,
     SessionLocal,
     engine,
 )
 
-# 导入全部模型，使 SQLAlchemy 能发现所有表。
+# 导入全部模型，使显式开发建表时 SQLAlchemy 能发现所有表。
 from app.models.content_analysis import ContentAnalysis  # noqa: F401
 from app.models.knowledge import KnowledgeItem  # noqa: F401
 from app.models.product import Product  # noqa: F401
@@ -17,65 +18,53 @@ from app.models.video_task import VideoTask  # noqa: F401
 from app.security import hash_password
 
 
-def init_db() -> None:
-    """创建数据表并初始化系统基础数据。"""
+def should_initialize_database() -> bool:
+    """仅在显式启用开发初始化能力时访问数据库。"""
 
-    Base.metadata.create_all(
-        bind=engine,
+    return bool(
+        settings.auto_create_schema
+        or settings.seed_admin
+        or settings.seed_system_settings
     )
 
+
+def init_db() -> None:
+    """按安全开关执行开发建表和种子数据初始化。"""
+
+    if not should_initialize_database():
+        return
+
+    if settings.auto_create_schema:
+        Base.metadata.create_all(bind=engine)
+
+    if not (settings.seed_admin or settings.seed_system_settings):
+        return
+
     with SessionLocal() as db:
-        admin_user = db.scalar(
-            select(User).where(
-                User.username == "admin"
-            )
-        )
+        if settings.seed_admin:
+            username = settings.admin_bootstrap_username
+            password = settings.admin_bootstrap_password
 
-        if admin_user is None:
-            admin_user = User(
-                username="admin",
-                display_name="系统管理员",
-                password_hash=hash_password(
-                    "123456"
-                ),
-                role="admin",
-                is_active=True,
+            admin_user = db.scalar(
+                select(User).where(User.username == username)
             )
 
-            db.add(admin_user)
+            if admin_user is None:
+                admin_user = User(
+                    username=username,
+                    display_name="系统管理员",
+                    password_hash=hash_password(
+                        password.get_secret_value()
+                    ),
+                    role="admin",
+                    is_active=True,
+                )
+                db.add(admin_user)
 
-            print("管理员账号创建成功")
-        else:
-            print("管理员账号已经存在")
+        if settings.seed_system_settings:
+            system_settings = db.get(SystemSetting, 1)
 
-        system_settings = db.get(
-            SystemSetting,
-            1,
-        )
-
-        if system_settings is None:
-            system_settings = SystemSetting(
-                id=1,
-                platform_name="AI短视频电商平台",
-                platform_subtitle=(
-                    "AI驱动的短视频内容创作与电商增长平台"
-                ),
-                default_platform="抖音",
-                timezone="Asia/Shanghai",
-                theme="dark",
-                ai_provider="OpenAI",
-                ai_model="default",
-                temperature=0.7,
-                enable_ai_generation=True,
-                enable_auto_review=False,
-                enable_notifications=True,
-                updated_by="系统管理员",
-            )
-
-            db.add(system_settings)
-
-            print("默认系统设置创建成功")
-        else:
-            print("系统设置已经存在")
+            if system_settings is None:
+                db.add(SystemSetting(id=1))
 
         db.commit()

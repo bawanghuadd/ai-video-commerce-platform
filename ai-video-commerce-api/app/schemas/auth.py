@@ -15,14 +15,14 @@ class LoginRequest(BaseModel):
         min_length=1,
         max_length=50,
         description="登录账号",
-        examples=["admin"],
+        examples=["demo_user"],
     )
 
     password: str = Field(
         min_length=6,
         max_length=100,
         description="登录密码",
-        examples=["123456"],
+        examples=["use-a-strong-password"],
     )
 
     @field_validator("username")
@@ -62,7 +62,7 @@ class RegisterRequest(BaseModel):
         min_length=6,
         max_length=100,
         description="注册密码",
-        examples=["123456"],
+        examples=["use-a-strong-password"],
     )
 
     @field_validator("username")
