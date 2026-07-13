@@ -10,6 +10,7 @@ import {
   setAuthData,
   setStoredUser,
 } from '../utils/authStorage.js'
+import { getPermissions } from '../utils/permissions.js'
 
 function hasAccessToken(authData) {
   return Boolean(authData?.access_token || authData?.token || authData?.accessToken)
@@ -21,6 +22,13 @@ export const useAuthStore = defineStore('auth', () => {
   const token = ref(getAccessToken())
   const user = ref(getStoredUser())
   const isLoggedIn = computed(() => Boolean(token.value))
+  const permissions = computed(() => getPermissions(user.value))
+  const canRead = computed(() => permissions.value.canRead)
+  const canCreate = computed(() => permissions.value.canCreate)
+  const canUpdate = computed(() => permissions.value.canUpdate)
+  const canDelete = computed(() => permissions.value.canDelete)
+  const canManageSettings = computed(() => permissions.value.canManageSettings)
+  const canManageUsers = computed(() => permissions.value.canManageUsers)
 
   function persistAuthData(authData) {
     const normalized = setAuthData(authData)
@@ -69,6 +77,13 @@ export const useAuthStore = defineStore('auth', () => {
     token,
     user,
     isLoggedIn,
+    permissions,
+    canRead,
+    canCreate,
+    canUpdate,
+    canDelete,
+    canManageSettings,
+    canManageUsers,
     login,
     register,
     loadCurrentUser,

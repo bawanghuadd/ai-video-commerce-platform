@@ -66,6 +66,10 @@ import {
   SHOT_TYPE_OPTIONS as shotTypeOptions,
 } from '../constants/scripts.js'
 
+import { useAuthStore } from '../stores/auth.js'
+
+const authStore = useAuthStore()
+
 const FILTER_DEFAULTS = {
   keyword: '',
   product_id: null,
@@ -991,6 +995,7 @@ onMounted(async () => {
           type="primary"
           :icon="Plus"
           class="create-button"
+          v-if="authStore.canCreate"
           @click="openCreateDialog"
         >
           新增脚本
@@ -1205,6 +1210,7 @@ onMounted(async () => {
                 link
                 :icon="Edit"
                 class="operation-button"
+                v-if="authStore.canUpdate"
                 @click="openEditDialog(row)"
               >
                 编辑
@@ -1215,6 +1221,7 @@ onMounted(async () => {
                 link
                 :icon="Delete"
                 class="operation-button"
+                v-if="authStore.canDelete"
                 @click="handleDelete(row)"
               >
                 删除

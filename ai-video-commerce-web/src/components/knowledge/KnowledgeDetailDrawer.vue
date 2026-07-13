@@ -28,6 +28,11 @@ const props = defineProps({
     default: null,
   },
 
+  canWrite: {
+    type: Boolean,
+    default: false,
+  },
+
   productList: {
     type: Array,
     default: () => [],
@@ -317,6 +322,7 @@ function handleUse() {
       <div class="drawer-actions">
         <el-button
           :icon="User"
+          v-if="canWrite"
           @click="handleEdit"
         >
           编辑知识
@@ -325,6 +331,7 @@ function handleUse() {
         <el-button
           type="primary"
           :icon="Link"
+          v-if="canWrite"
           @click="handleUse"
         >
           引用知识

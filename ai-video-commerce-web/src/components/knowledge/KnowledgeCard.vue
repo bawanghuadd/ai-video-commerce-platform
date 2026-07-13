@@ -25,6 +25,11 @@ const props = defineProps({
     default: () => [],
   },
 
+  canWrite: {
+    type: Boolean,
+    default: false,
+  },
+
   usingKnowledgeId: {
     type: [Number, String, null],
     default: null,
@@ -172,6 +177,7 @@ function getProductName(productId) {
           type="success"
           link
           :icon="Link"
+          v-if="canWrite"
           :loading="
             usingKnowledgeId === item.id
           "
@@ -184,6 +190,7 @@ function getProductName(productId) {
           type="primary"
           link
           :icon="Edit"
+          v-if="canWrite"
           @click="emit('edit', item)"
         >
           编辑
@@ -193,6 +200,7 @@ function getProductName(productId) {
           type="danger"
           link
           :icon="Delete"
+          v-if="canWrite"
           @click="emit('delete', item)"
         >
           删除

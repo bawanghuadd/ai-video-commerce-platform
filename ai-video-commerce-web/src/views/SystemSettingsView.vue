@@ -37,6 +37,10 @@ import {
 } from '../constants/platforms.js'
 
 
+import { useAuthStore } from '../stores/auth.js'
+
+const authStore = useAuthStore()
+
 /* ==============================
    页面状态
 ================================ */
@@ -484,6 +488,7 @@ onMounted(() => {
         <el-button
           :icon="Refresh"
           class="restore-button"
+          :disabled="!authStore.canManageSettings"
           @click="restoreSavedSettings"
         >
           恢复修改
@@ -494,6 +499,7 @@ onMounted(() => {
           :icon="Check"
           :loading="saving"
           class="save-button"
+          :disabled="!authStore.canManageSettings"
           @click="saveSystemSettings"
         >
           保存设置

@@ -47,6 +47,10 @@ import {
   formatDateTime as formatDate,
 } from '../utils/date.js'
 
+import { useAuthStore } from '../stores/auth.js'
+
+const authStore = useAuthStore()
+
 const FILTER_DEFAULTS = {
   keyword: '',
   category: '',
@@ -634,6 +638,7 @@ onMounted(() => {
           type="primary"
           :icon="Plus"
           class="create-button"
+          v-if="authStore.canCreate"
           @click="openCreateDialog"
         >
           新增商品
@@ -758,6 +763,7 @@ onMounted(() => {
                 link
                 :icon="Edit"
                 class="operation-button"
+                v-if="authStore.canUpdate"
                 @click="openEditDialog(row)"
               >
                 编辑
@@ -768,6 +774,7 @@ onMounted(() => {
                 link
                 :icon="Delete"
                 class="operation-button"
+                v-if="authStore.canDelete"
                 @click="handleDelete(row)"
               >
                 删除

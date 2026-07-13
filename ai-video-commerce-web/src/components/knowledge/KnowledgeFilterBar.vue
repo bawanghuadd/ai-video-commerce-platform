@@ -33,6 +33,11 @@ const props = defineProps({
     default: () => [],
   },
 
+  canCreate: {
+    type: Boolean,
+    default: false,
+  },
+
   loading: {
     type: Boolean,
     default: false,
@@ -290,6 +295,7 @@ watch(
         type="primary"
         :icon="Plus"
         class="create-button"
+        v-if="canCreate"
         @click="handleCreate"
       >
         新增知识

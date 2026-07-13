@@ -17,6 +17,10 @@ import {
 } from '../composables/useKnowledgeBase.js'
 
 
+import { useAuthStore } from '../stores/auth.js'
+
+const authStore = useAuthStore()
+
 /* ==============================
    知识库业务逻辑
 ================================ */
@@ -120,6 +124,7 @@ function handleFilterUpdate(
         :model-value="filters"
         :product-list="productList"
         :loading="loading"
+        :can-create="authStore.canCreate"
         @update:model-value="
           handleFilterUpdate
         "
@@ -143,6 +148,7 @@ function handleFilterUpdate(
             :key="item.id"
             :item="item"
             :product-list="productList"
+            :can-write="authStore.canUpdate"
             :using-knowledge-id="
               usingKnowledgeId
             "
@@ -175,6 +181,7 @@ function handleFilterUpdate(
           <el-button
             type="primary"
             class="empty-create-button"
+            v-if="authStore.canCreate"
             @click="openCreate"
           >
             新增知识
@@ -236,6 +243,7 @@ function handleFilterUpdate(
       :product-list="
         productList
       "
+      :can-write="authStore.canUpdate"
       @edit="openEdit"
       @use="useKnowledge"
     />
