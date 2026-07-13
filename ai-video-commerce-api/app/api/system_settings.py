@@ -1,104 +1,43 @@
-from fastapi import (
-    APIRouter,
-    Depends,
-)
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.models.system_setting import SystemSetting
-from app.models.user import User
-from app.schemas.system_setting import (
-    SystemSettingResponse,
-    SystemSettingUpdate,
-)
-from app.security import get_current_user
+from app.dependencies.auth import get_current_user
+from app.schemas.common import ApiResponse
+from app.schemas.system_setting import SystemSettingResponse, SystemSettingUpdate
+from app.services.system_setting import SystemSettingService
 
 
-router = APIRouter(
-    prefix="/api/system-settings",
-    tags=["系统设置"],
-)
+router = APIRouter(prefix="/api/system-settings", tags=["系统设置"])
 
 
-def get_or_create_settings(
-    db: Session,
-) -> SystemSetting:
-    settings = db.get(
-        SystemSetting,
-        1,
-    )
-
-    if settings is not None:
-        return settings
-
-    settings = SystemSetting(
-        id=1,
-    )
-
-    db.add(settings)
-    db.commit()
-    db.refresh(settings)
-
-    return settings
-
-
-@router.get("")
-def get_system_settings(
+def get_system_setting_service(
     db: Session = Depends(get_db),
-    _: User = Depends(get_current_user),
+) -> SystemSettingService:
+    return SystemSettingService(db)
+
+
+@router.get("", response_model=ApiResponse[SystemSettingResponse])
+def get_system_settings(
+    current_user=Depends(get_current_user),
+    service: SystemSettingService = Depends(get_system_setting_service),
 ) -> dict:
-    """获取系统全局配置。"""
-
-    settings = get_or_create_settings(db)
-
+    del current_user
     return {
         "code": 200,
         "message": "获取系统设置成功",
-        "data": (
-            SystemSettingResponse
-            .model_validate(settings)
-            .model_dump()
-        ),
+        "data": service.get_settings(),
     }
 
 
-@router.put("")
+@router.put("", response_model=ApiResponse[SystemSettingResponse])
 def update_system_settings(
     update_data: SystemSettingUpdate,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(
-        get_current_user
-    ),
+    current_user=Depends(get_current_user),
+    service: SystemSettingService = Depends(get_system_setting_service),
 ) -> dict:
-    """修改系统全局配置。"""
-
-    settings = get_or_create_settings(db)
-
-    update_fields = update_data.model_dump(
-        exclude_unset=True,
-    )
-
-    for field_name, field_value in update_fields.items():
-        setattr(
-            settings,
-            field_name,
-            field_value,
-        )
-
-    settings.updated_by = (
-        current_user.display_name
-        or current_user.username
-    )
-
-    db.commit()
-    db.refresh(settings)
-
     return {
         "code": 200,
         "message": "系统设置保存成功",
-        "data": (
-            SystemSettingResponse
-            .model_validate(settings)
-            .model_dump()
-        ),
+        "data": service.update_settings(update_data, current_user),
     }
