@@ -56,7 +56,7 @@ async def handle_domain_error(_: Request, error: DomainError) -> JSONResponse:
 
 @fastapi_app.exception_handler(Exception)
 async def handle_unexpected_error(_: Request, error: Exception) -> JSONResponse:
-    logger.exception("unhandled application error", exc_info=error)
+    logger.error("unhandled application error type=%s", type(error).__name__)
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content=ErrorResponse(detail="服务器内部错误，请稍后重试").model_dump(),
