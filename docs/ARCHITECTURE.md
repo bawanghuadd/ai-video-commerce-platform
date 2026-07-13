@@ -106,3 +106,22 @@ Service/Repository 分层留待后续阶段。Phase 1 不移动 Router，但通�
 - `src` 下 `.bak`、注释旧脚本和常见乱码。
 
 守卫只读并输出规则、文件、行号和命中内容。
+
+## 8. Phase 2 后端实际架构
+
+```text
+main -> api.router -> api modules -> services -> repositories -> database/models
+                         |             |
+                         v             v
+                   dependencies      core/domain
+```
+
+- `app/database/session.py` 是唯一生产 Session 工厂；`app/database.py` 已删除。
+- `app/core/security.py` 是唯一密码/JWT 实现；旧 `app/security.py` 仅 re-export。
+- Router 只处理 HTTP、Depends、Schema 和 envelope，不 import ORM、不提交事务。
+- Repository 查询、add/delete/flush，不 commit。
+- Service 是写事务边界，统一 commit/rollback，并抛领域异常而非 HTTPException。
+- `app/core/exceptions.py` 由全局 handler 映射 401/403/404/409/422/500。
+- 全部现有业务路径使用 `ApiResponse[T]` response_model，列表 data 仍为数组。
+- `/health/live` 不访问数据库；`/health/ready` 执行 `SELECT 1`；兼容 `/api/health`。
+- Alembic 不随应用启动，必须显式提供 `ALEMBIC_DATABASE_URL`。

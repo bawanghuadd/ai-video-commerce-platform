@@ -90,3 +90,24 @@ ADMIN_BOOTSTRAP_PASSWORD=replace-with-a-strong-local-password
 - 错误消息只显示一次。
 
 不得在生产数据库执行冒烟写操作。
+
+## 6. Phase 2 隔离 API 测试
+
+后端 pytest 默认使用临时 SQLite 和 FastAPI dependency override，每项测试重建 schema。若显式提供 `TEST_DATABASE_URL`，数据库名必须包含 `test`、`testing` 或 `ci`；测试绝不回退 `DATABASE_URL`。
+
+```powershell
+cd ai-video-commerce-api
+.\.venv\Scripts\python.exe -m pytest -q
+```
+
+SQLite 覆盖应用契约、RBAC、事务 rollback、完整业务链和迁移往返，但不代表 MySQL 外键、锁、字符集或隔离级别已验证。
+
+## 7. 健康检查
+
+- `GET /health/live`：仅进程存活。
+- `GET /health/ready`：轻量数据库探测，失败返回 503。
+- `GET /api/health`：保留前端兼容路径并执行真实探测。
+
+## 8. 迁移与管理员
+
+迁移操作见 `docs/DATABASE_MIGRATIONS.md`，权限与显式管理员 CLI 见 `docs/PERMISSIONS.md`。开发和测试不得对当前真实数据库执行 Alembic 或管理员 CLI。

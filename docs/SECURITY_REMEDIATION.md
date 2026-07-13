@@ -107,3 +107,17 @@
 - JWT 中携带的 role 可能在角色变更后过期；当前服务端每次请求重新查询用户，应以数据库最新角色为准。
 - 授权代码应按资源逐步提交，可回滚单资源依赖；数据角色迁移必须有独立 downgrade。
 - 已实施的安全启动门禁不应回滚为固定账号或生产自动建表。
+
+## 10. Phase 2 已实施安全能力
+
+- 服务端集中 admin/editor/viewer RBAC；既有 user 兼容 editor，新注册默认 viewer。
+- 业务写接口只允许 admin/editor，系统设置写只允许 admin；viewer 只读。
+- 授权使用数据库最新角色，伪造 JWT role claim 测试不能绕过。
+- 停用用户 Token 返回 401；有效身份越权返回 403。
+- 显式管理员 CLI 从环境读取至少 12 位密码；不开机运行、无固定用户名/弱口令。
+- System Settings GET 不再隐式创建数据，只有 PUT 是显式写入。
+- 应用启动不自动 migration；Alembic URL 必须显式提供。
+- 500 对外通用化；request log 仅含 method/path/status/duration/request-id，不记录 Authorization 或请求体。
+- 前端 403 不清理会话，写按钮按集中权限隐藏/禁用；服务端仍是权威。
+
+Phase 2 没有访问真实数据库、没有运行生产 migration、没有创建或晋升真实管理员。真实 MySQL 演练、凭据轮换、登录限流、Token 撤销、审计持久化仍需后续独立实施。

@@ -79,3 +79,14 @@ cd ..\ai-video-commerce-api
 - 清理、契约、安全和文档分别提交。
 - 提交前检查 `git diff`、`git diff --cached` 和凭据。
 - 每个提交应保持可构建、可测试、可回滚。
+
+## 8. Phase 2 后端分层规范
+
+- Router 禁止 import `app.models`、`commit/rollback`、SQLAlchemy 查询和 `HTTPException` 业务映射。
+- Repository 只依赖 Model/Session，允许 query、add、delete、execute 和 flush，禁止 commit 和 HTTP Response。
+- Service 负责关联校验、状态转换和事务；写方法使用统一事务装饰器，任何异常 rollback。
+- Service 使用 `NotFoundError/ConflictError/ValidationError/PermissionDeniedError/AuthenticationError`，禁止依赖 FastAPI。
+- 成功响应使用 `ApiResponse[T]`；列表响应类型是 `ApiResponse[list[Schema]]`。
+- 未处理 500 不返回异常文本；日志不记录 Header、请求体、密码、Token 或 Secret。
+- 权限角色和值只在集中常量/权限模块定义，前端页面不硬编码角色判断。
+- 数据结构变更必须使用可 upgrade/downgrade 的 Alembic migration，应用不自动迁移。
