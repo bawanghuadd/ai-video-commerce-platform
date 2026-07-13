@@ -1,16 +1,39 @@
 import axios from 'axios'
 
+import { clearAuthData, getAccessToken } from './authStorage.js'
+
+export function createUnauthorizedHandler(options = {}) {
+  const clearAuth = options.clearAuth || clearAuthData
+  const getPath = options.getPath || (() => window.location.pathname)
+  const navigate = options.navigate || ((path) => window.location.replace(path))
+
+  let isHandlingUnauthorized = false
+
+  return function handleUnauthorized(error) {
+    if (error?.response?.status !== 401 || getPath() === '/login' || isHandlingUnauthorized) {
+      return false
+    }
+
+    isHandlingUnauthorized = true
+    clearAuth()
+    navigate('/login')
+
+    return true
+  }
+}
+
 const request = axios.create({
   baseURL: 'http://127.0.0.1:8000/api',
   timeout: 10000,
 })
 
+const handleUnauthorized = createUnauthorizedHandler()
+
 request.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('access_token')
+    const token = getAccessToken()
 
     if (token) {
-        // 以后访问 /api/auth/me 等受保护接口时，会自动携带 JWT。
       config.headers.Authorization = `Bearer ${token}`
     }
 
@@ -22,15 +45,7 @@ request.interceptors.request.use(
 request.interceptors.response.use(
   (response) => response.data,
   (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('access_token')
-      localStorage.removeItem('user')
-
-      if (window.location.pathname !== '/login') {
-        window.location.href = '/login'
-      }
-    }
-
+    handleUnauthorized(error)
     return Promise.reject(error)
   },
 )

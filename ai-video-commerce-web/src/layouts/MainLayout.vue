@@ -2,6 +2,8 @@
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
+import { useAuthStore } from '../stores/auth.js'
+
 import {
   Bell,
   Collection,
@@ -21,6 +23,7 @@ import {
 
 const route = useRoute()
 const router = useRouter()
+const authStore = useAuthStore()
 
 
 /* ==============================
@@ -129,15 +132,7 @@ const activeMenu = computed(() => {
    用户信息
 ================================ */
 
-const storedUser = computed(() => {
-  try {
-    return JSON.parse(
-      localStorage.getItem('user') || '{}',
-    )
-  } catch {
-    return {}
-  }
-})
+const storedUser = computed(() => authStore.user || {})
 
 const displayName = computed(() => {
   return (
@@ -211,9 +206,7 @@ function handleGlobalSearch() {
 ================================ */
 
 function handleLogout() {
-  localStorage.removeItem('access_token')
-  localStorage.removeItem('token')
-  localStorage.removeItem('user')
+  authStore.logout()
 
   router.replace('/login')
 }

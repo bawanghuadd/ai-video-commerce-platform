@@ -3,26 +3,13 @@ import {
   createWebHistory,
 } from 'vue-router'
 
+import {
+  getAccessToken,
+  migrateLegacyAuthData,
+} from '../utils/authStorage.js'
+
 const APP_TITLE =
   'AI短视频电商平台'
-
-/**
- * 获取本地访问令牌。
- *
- * access_token 是当前标准字段；
- * token 用于兼容旧版本数据。
- */
-function getAccessToken() {
-  return (
-    localStorage.getItem(
-      'access_token',
-    ) ||
-    localStorage.getItem(
-      'token',
-    ) ||
-    ''
-  )
-}
 
 /**
  * 校验登录后的返回地址。
@@ -196,6 +183,8 @@ const routes = [
     },
   },
 ]
+
+migrateLegacyAuthData()
 
 const router = createRouter({
   history: createWebHistory(

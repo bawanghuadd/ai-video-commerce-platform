@@ -21,6 +21,10 @@ import {
 } from '../../utils/apiResponse.js'
 
 import {
+  getStoredUser,
+} from '../../utils/authStorage.js'
+
+import {
   KNOWLEDGE_CATEGORY_OPTIONS,
   KNOWLEDGE_SOURCE_TYPE_OPTIONS,
   KNOWLEDGE_STATUS_OPTIONS,
@@ -192,20 +196,13 @@ const formRules = {
 ================================ */
 
 function getStoredUserName() {
-  try {
-    const user = JSON.parse(
-      localStorage.getItem('user') ||
-      '{}',
-    )
+  const user = getStoredUser() || {}
 
-    return (
-      user.display_name ||
-      user.username ||
-      '系统管理员'
-    )
-  } catch {
-    return '系统管理员'
-  }
+  return (
+    user.display_name ||
+    user.username ||
+    '系统管理员'
+  )
 }
 
 

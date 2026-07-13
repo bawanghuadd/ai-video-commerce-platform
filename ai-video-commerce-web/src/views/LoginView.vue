@@ -36,6 +36,12 @@ import {
   getApiErrorMessage,
 } from '../utils/apiResponse.js'
 
+import {
+  clearRememberedAccount,
+  getRememberedAccount,
+  setRememberedAccount,
+} from '../utils/authStorage.js'
+
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
@@ -274,21 +280,12 @@ async function enterSystem() {
 ================================ */
 
 function saveRememberedAccount() {
-  const username =
-    loginForm.username.trim()
-
   if (loginForm.remember) {
-    localStorage.setItem(
-      'remembered_login_account',
-      username,
-    )
-
+    setRememberedAccount(loginForm.username)
     return
   }
 
-  localStorage.removeItem(
-    'remembered_login_account',
-  )
+  clearRememberedAccount()
 }
 
 /* ==============================
@@ -370,11 +367,7 @@ async function handleRegister() {
       password:
         registerForm.password,
     })
-
-    localStorage.setItem(
-      'remembered_login_account',
-      username,
-    )
+    setRememberedAccount(username)
 
     ElMessage.success(
       '注册成功，正在进入系统',
@@ -409,9 +402,7 @@ function handleForgotPassword() {
 
 onMounted(() => {
   const rememberedAccount =
-    localStorage.getItem(
-      'remembered_login_account',
-    )
+    getRememberedAccount()
 
   if (!rememberedAccount) {
     return
