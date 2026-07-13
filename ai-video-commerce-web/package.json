@@ -33,7 +33,6 @@
     "eslint-plugin-oxlint": "~1.69.0",
     "eslint-plugin-vue": "~10.9.2",
     "globals": "^17.6.0",
-    "npm-run-all2": "^9.0.2",
     "oxlint": "~1.69.0",
     "prettier": "3.8.4",
     "vite": "^8.0.16",

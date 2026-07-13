@@ -2,6 +2,23 @@ import os
 from collections.abc import Generator
 from pathlib import Path
 
+# Force a non-production, non-writing configuration before importing app modules.
+# TEST_DATABASE_URL remains the only opt-in database used by integration tests.
+os.environ.update(
+    {
+        "APP_ENV": "test",
+        "DB_HOST": "127.0.0.1",
+        "DB_PORT": "3306",
+        "DB_USER": "test_only",
+        "DB_PASSWORD": "test_only",
+        "DB_NAME": "ai_video_commerce_ci",
+        "SECRET_KEY": "test-only-secret-not-used-outside-tests",
+        "AUTO_CREATE_SCHEMA": "false",
+        "SEED_ADMIN": "false",
+        "SEED_SYSTEM_SETTINGS": "false",
+    }
+)
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, event
