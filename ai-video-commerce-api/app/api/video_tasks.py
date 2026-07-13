@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.dependencies.auth import get_current_user
+from app.dependencies.permissions import require_business_access
 from app.schemas.common import ApiResponse
 from app.schemas.video_task import VideoTaskCreate, VideoTaskResponse, VideoTaskUpdate
 from app.services.video_task import VideoTaskService
@@ -11,7 +11,7 @@ from app.services.video_task import VideoTaskService
 router = APIRouter(
     prefix="/api/video-tasks",
     tags=["视频管理"],
-    dependencies=[Depends(get_current_user)],
+    dependencies=[Depends(require_business_access)],
 )
 
 

@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.dependencies.auth import get_current_user
+from app.dependencies.permissions import require_business_access
 from app.schemas.common import ApiResponse
 from app.schemas.product import ProductCreate, ProductResponse, ProductUpdate
 from app.services.product import ProductService
@@ -11,7 +11,7 @@ from app.services.product import ProductService
 router = APIRouter(
     prefix="/api/products",
     tags=["商品管理"],
-    dependencies=[Depends(get_current_user)],
+    dependencies=[Depends(require_business_access)],
 )
 
 

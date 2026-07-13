@@ -3,12 +3,17 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.dependencies.auth import get_current_user
+from app.dependencies.permissions import require_settings_access
 from app.schemas.common import ApiResponse
 from app.schemas.system_setting import SystemSettingResponse, SystemSettingUpdate
 from app.services.system_setting import SystemSettingService
 
 
-router = APIRouter(prefix="/api/system-settings", tags=["系统设置"])
+router = APIRouter(
+    prefix="/api/system-settings",
+    tags=["系统设置"],
+    dependencies=[Depends(require_settings_access)],
+)
 
 
 def get_system_setting_service(

@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.dependencies.auth import get_current_user
+from app.dependencies.permissions import require_business_access
 from app.schemas.common import ApiResponse
 from app.schemas.knowledge import KnowledgeCreate, KnowledgeResponse, KnowledgeUpdate
 from app.services.knowledge import KnowledgeService
@@ -11,7 +11,7 @@ from app.services.knowledge import KnowledgeService
 router = APIRouter(
     prefix="/api/knowledge-items",
     tags=["知识库"],
-    dependencies=[Depends(get_current_user)],
+    dependencies=[Depends(require_business_access)],
 )
 
 

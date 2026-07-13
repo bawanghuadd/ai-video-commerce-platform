@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.dependencies.auth import get_current_user
+from app.dependencies.permissions import require_business_access
 from app.schemas.common import ApiResponse
 from app.schemas.content_analysis import (
     ContentAnalysisCreate,
@@ -15,7 +15,7 @@ from app.services.content_analysis import ContentAnalysisService
 router = APIRouter(
     prefix="/api/content-analyses",
     tags=["爆款内容拆解"],
-    dependencies=[Depends(get_current_user)],
+    dependencies=[Depends(require_business_access)],
 )
 
 
