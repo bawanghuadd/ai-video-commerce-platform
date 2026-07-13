@@ -56,6 +56,15 @@ import {
 import {
   formatDateTime as formatDate,
 } from '../utils/date.js'
+import {
+  PLATFORM_OPTIONS as platformOptions,
+} from '../constants/platforms.js'
+
+import {
+  VIDEO_RESOLUTION_OPTIONS as resolutionOptions,
+  VIDEO_TASK_STATUS_CLASS_MAP as STATUS_CLASS_MAP,
+  VIDEO_TASK_STATUS_OPTIONS as statusOptions,
+} from '../constants/videoTasks.js'
 
 const FILTER_DEFAULTS = {
   keyword: '',
@@ -76,15 +85,6 @@ const VIDEO_FORM_DEFAULTS = {
   video_url: '',
   notes: '',
   published_at: null,
-}
-
-const STATUS_CLASS_MAP = {
-  待制作: 'waiting',
-  制作中: 'processing',
-  待审核: 'reviewing',
-  已完成: 'completed',
-  已发布: 'published',
-  已驳回: 'rejected',
 }
 
 /* ==============================
@@ -229,29 +229,6 @@ const formRules = {
    固定选项
 ================================ */
 
-const platformOptions = [
-  '抖音',
-  '快手',
-  '小红书',
-  '视频号',
-  'B站',
-]
-
-const statusOptions = [
-  '待制作',
-  '制作中',
-  '待审核',
-  '已完成',
-  '已发布',
-  '已驳回',
-]
-
-const resolutionOptions = [
-  '720P',
-  '1080P',
-  '2K',
-  '4K',
-]
 
 /* ==============================
    计算属性

@@ -55,6 +55,16 @@ import {
 import {
   formatDateTime as formatDate,
 } from '../utils/date.js'
+import {
+  PLATFORM_OPTIONS as platformOptions,
+} from '../constants/platforms.js'
+
+import {
+  SCRIPT_STATUS_CLASS_MAP as STATUS_CLASS_MAP,
+  SCRIPT_STATUS_OPTIONS as statusOptions,
+  SCRIPT_TYPE_OPTIONS as scriptTypeOptions,
+  SHOT_TYPE_OPTIONS as shotTypeOptions,
+} from '../constants/scripts.js'
 
 const FILTER_DEFAULTS = {
   keyword: '',
@@ -72,13 +82,6 @@ const SCRIPT_FORM_DEFAULTS = {
   full_script: '',
   duration_seconds: 30,
   status: '草稿',
-}
-
-const STATUS_CLASS_MAP = {
-  草稿: 'draft',
-  待审核: 'pending',
-  已通过: 'approved',
-  已驳回: 'rejected',
 }
 
 /* ==============================
@@ -208,37 +211,6 @@ const formRules = {
    固定选项
 ================================ */
 
-const platformOptions = [
-  '抖音',
-  '快手',
-  '小红书',
-  '视频号',
-  'B站',
-]
-
-const scriptTypeOptions = [
-  '带货短视频',
-  '产品测评',
-  '剧情种草',
-  '口播推荐',
-  '场景展示',
-]
-
-const statusOptions = [
-  '草稿',
-  '待审核',
-  '已通过',
-  '已驳回',
-]
-
-const shotTypeOptions = [
-  '远景',
-  '全景',
-  '中景',
-  '近景',
-  '特写',
-  '产品特写',
-]
 
 /* ==============================
    计算属性

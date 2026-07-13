@@ -50,6 +50,14 @@ import {
 import {
   formatDateTime as formatDate,
 } from '../utils/date.js'
+import {
+  PLATFORM_OPTIONS as platformOptions,
+} from '../constants/platforms.js'
+
+import {
+  CONTENT_ANALYSIS_STATUS_CLASS_MAP as STATUS_CLASS_MAP,
+  CONTENT_ANALYSIS_STATUS_OPTIONS as statusOptions,
+} from '../constants/contentAnalysis.js'
 
 const FILTER_DEFAULTS = {
   keyword: '',
@@ -68,13 +76,6 @@ const ANALYSIS_FORM_DEFAULTS = {
   target_audience: '',
   analysis_result: '',
   status: '待拆解',
-}
-
-const STATUS_CLASS_MAP = {
-  待拆解: 'pending',
-  拆解中: 'processing',
-  已拆解: 'completed',
-  已归档: 'archived',
 }
 
 /* ==============================
@@ -176,20 +177,6 @@ const formRules = {
    固定选项
 ================================ */
 
-const platformOptions = [
-  '抖音',
-  '快手',
-  '小红书',
-  '视频号',
-  'B站',
-]
-
-const statusOptions = [
-  '待拆解',
-  '拆解中',
-  '已拆解',
-  '已归档',
-]
 
 /* ==============================
    计算属性

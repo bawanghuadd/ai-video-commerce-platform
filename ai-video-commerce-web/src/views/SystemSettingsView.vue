@@ -8,7 +8,6 @@ import {
 
 import {
   ElMessage,
-  ElMessageBox,
 } from 'element-plus'
 
 import {
@@ -28,6 +27,14 @@ import {
 import {
   getApiErrorMessage,
 } from '../utils/apiResponse.js'
+
+import {
+  confirmAction,
+} from '../utils/confirm.js'
+
+import {
+  PLATFORM_OPTIONS as platformOptions,
+} from '../constants/platforms.js'
 
 
 /* ==============================
@@ -139,13 +146,6 @@ const formRules = {
    下拉选项
 ================================ */
 
-const platformOptions = [
-  '抖音',
-  '快手',
-  '小红书',
-  '视频号',
-  'B站',
-]
 
 const timezoneOptions = [
   {
@@ -426,15 +426,18 @@ async function restoreSavedSettings() {
   }
 
   try {
-    await ElMessageBox.confirm(
-      '确定恢复到上一次保存的系统设置吗？当前未保存的修改将丢失。',
-      '恢复设置',
-      {
-        confirmButtonText: '确认恢复',
-        cancelButtonText: '取消',
-        type: 'warning',
-      },
-    )
+    const confirmed =
+      await confirmAction(
+        '确定恢复到上一次保存的系统设置吗？当前未保存的修改将丢失。',
+        '恢复设置',
+        {
+          confirmButtonText: '确认恢复',
+        },
+      )
+
+    if (!confirmed) {
+      return
+    }
 
     applySettings(
       originalSettings.value,
@@ -445,20 +448,12 @@ async function restoreSavedSettings() {
     ElMessage.success(
       '已恢复到上一次保存的设置',
     )
-  } catch (error) {
-    if (
-      error === 'cancel' ||
-      error === 'close'
-    ) {
-      return
-    }
-
+  } catch {
     ElMessage.error(
       '恢复设置失败',
     )
   }
 }
-
 
 /* ==============================
    生命周期
