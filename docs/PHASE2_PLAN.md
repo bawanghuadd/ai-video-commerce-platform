@@ -1,8 +1,8 @@
 # Phase 2 后端标准化执行计划
 
-> 执行分支：`refactor/phase2-backend-standardization`  
-> 审计日期：2026-07-13  
-> 基线：Phase 1 本地完成提交 `8200548`；远程推送因 GitHub 连接失败待后续重试  
+> 执行分支：`refactor/phase2-backend-standardization`
+> 审计日期：2026-07-13
+> 基线：Phase 1 本地完成提交 `8200548`；远程推送因 GitHub 连接失败待后续重试
 > 安全边界：不连接或修改用户真实数据库，不对真实库运行 Alembic，不改变现有 API 路径、请求字段、成功 envelope 或列表数组结构。
 
 ## 1. 当前真实架构与依赖方向
