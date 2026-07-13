@@ -4,7 +4,10 @@
 
 应用启动不会自动运行 Alembic。`alembic/env.py` 只接受显式 `ALEMBIC_DATABASE_URL`，不会回退使用应用数据库配置。任何生产迁移都必须先备份、评审迁移脚本、在同版本副本演练并取得变更审批。
 
-Codex Phase 2 仅在临时 SQLite 执行迁移验证，没有连接或修改用户 MySQL。SQLite 结果不能证明 MySQL 外键、锁、字符集或隔离级别行为。
+Phase 2 初次完成时仅在临时 SQLite 执行迁移验证。最终发布前验收又使用
+MySQL 8.0.46 二进制在系统临时目录初始化了全新的独立实例，监听独立端口
+`33307`，且未读取现有 MySQL 配置或项目 `DATABASE_URL`。三个隔离库均以
+`phase2_acceptance_ci_` 开头；用户现有数据库没有被连接、迁移或写入。
 
 ## 新库初始化
 
@@ -51,3 +54,11 @@ Remove-Item Env:ALEMBIC_DATABASE_URL
 ## 隔离验证
 
 仓库测试 `tests/integration/test_migrations.py` 在 pytest 临时目录创建 SQLite，验证 initial、旧角色数据、upgrade、downgrade 和再次 upgrade。显式 `TEST_DATABASE_URL` 的数据库名必须包含 `test/testing/ci`；测试绝不回退真实数据库。
+
+2026-07-13 最终验收在独立 MySQL 实例中使用三个职责分离的数据库：
+
+- `phase2_acceptance_ci_migration`：执行 `upgrade head → downgrade -1 → upgrade head`，最终为 `20260713_0002 (head)`。
+- `phase2_acceptance_ci_pytest`：通过显式 `TEST_DATABASE_URL` 运行全部后端 pytest，结果为 46 passed；完整业务链另行重跑为 1 passed。
+- `phase2_acceptance_ci_e2e`：迁移到 head 后供启动中的隔离后端执行真实 HTTP 业务链。
+
+该验证证明当前迁移和测试可在 MySQL 8.0 上运行，但仍不替代生产数据副本上的容量、锁等待、长事务、备份恢复和停机窗口演练。

@@ -10,7 +10,7 @@ Phase 2 已完成本地主体实施和最终验证：七个业务模块迁移为
 
 没有连接、查询、修改或迁移用户真实数据库；没有运行真实管理员 CLI；没有合并 main；没有 force push、reset、rebase 已推送历史或删除用户数据。
 
-最终本地验证：前端 11 个文件/39 项测试通过，后端 46 项测试通过。测试数据库为 pytest 临时 SQLite；不声称验证 MySQL 外键、锁、字符集或隔离级别。
+初次完成验证为前端 11 个文件/39 项、后端 46 项通过，默认测试库为 pytest 临时 SQLite。2026-07-13 最终发布前验收又在全新独立 MySQL 8.0.46 实例中完成迁移往返、46 项 pytest 和真实 HTTP 业务链；用户现有数据库始终未连接或修改。
 
 ## 2. Phase 1 push 收尾
 
@@ -161,22 +161,21 @@ ai-video-commerce-api/
 - 首次后端 response_model 守卫因 FastAPI 0.139 延迟 IncludedRouter 收集为空而 1 项失败；改为递归遍历 `original_router.routes` 后 5 项守卫通过。
 - 若只读 `rg` 无匹配，工具返回 exit 1；报告中“无命中”不描述为命令失败通过，而由后续显式分支转换为 `NO_HITS`、最终命令 exit 0。
 
-## 13. 未执行测试
+## 13. 未执行或未通过的验收
 
-以下没有执行，因此不声称通过：
+以下项目不声称通过：
 
-- 真实 MySQL 集成测试、外键/级联/锁/并发/字符集/事务隔离验证。
-- 对用户真实数据库的 Alembic、stamp、upgrade、downgrade、备份或恢复。
-- 浏览器 E2E、跨浏览器、真实前后端联调和人工 UI 冒烟。
-- 远程 GitHub Actions 本次 workflow 运行结果；CI 文件已创建但远程 job 尚未核验。
-- 生产部署、反向代理、HTTPS、CORS、真实 readiness 和日志采集链路。
-- 真实管理员创建/晋升、真实角色数据盘点和产品权限审批。
+- 用户真实数据库上的 Alembic、stamp、upgrade、downgrade、备份或恢复：按安全要求未执行。
+- 真实浏览器点击 E2E 与跨浏览器测试：浏览器插件文件存在，但其 Node 运行时连续两次以系统路径错误启动失败，因此未执行；以真实 HTTP 自动 E2E 和前端 Vitest 代替，但不冒充浏览器通过。
+- GitHub Actions：已实际查询，但账户因计费问题被锁定，job 未启动，结论为 failure，不是绿色。
+- 生产部署、反向代理、HTTPS、生产 CORS、真实日志采集链路：未执行。
+- 真实管理员创建/晋升、真实角色数据盘点和产品权限审批：未执行；E2E 角色只写入独立临时 MySQL。
 
 ## 14. CI 状态
 
-`.github/workflows/ci.yml` 已创建：前端逐项运行 npm ci/lint/format/architecture/test/build，后端运行锁定依赖安装、compileall、pytest。权限仅 `contents: read`，无 `|| true`、部署、真实 Secret、数据库迁移或自动数据修改。
+`.github/workflows/ci.yml` 保持前端 npm ci/lint/format/architecture/test/build 与后端依赖安装/compileall/pytest；权限仅 `contents: read`，没有 `|| true`、部署、真实 Secret、数据库迁移或自动数据修改。
 
-CI 尚未观察到远程运行结果，不能声称 GitHub Actions 已通过。
+通过 GitHub 官方 API 实际核对最新运行：CI run `29220984583`（run #3，head `9179a0d`）状态为 `completed/failure`。backend 与 frontend job 均没有开始任何 step；check annotation 原文为 `The job was not started because your account is locked due to a billing issue.`。这是 GitHub 账户层外部阻塞，无法通过仓库最小代码修复解除，因此不声称 CI 通过或绿色。
 
 ## 15. Commit 列表
 
@@ -214,14 +213,14 @@ cdbfe26 docs(phase2): document architecture contracts permissions and migrations
 
 ## 17. 剩余风险
 
-- SQLite 不能替代 MySQL；合并/发布前必须在隔离 MySQL 执行完整测试和迁移演练。
+- 隔离 MySQL 8.0 验收已完成，但仍不能替代生产数据副本上的容量、锁等待、长事务、备份恢复和停机窗口演练。
 - 角色迁移语义虽按主指令实现，仍需产品确认真实用户角色分布和未知角色策略。
 - Video 状态机是最小工作流，真实审核/发布权限若更细需产品规则。
 - 当前仍使用 localStorage Bearer Token，无 Refresh Token/撤销/HttpOnly Cookie；这是明确排除项。
 - 列表仍全量、金额仍 Float；服务端分页和 Decimal 是明确排除项。
 - Starlette TestClient 提示未来迁移 httpx2。
 - Vite 仍警告 ECharts 约 1118 kB、主 chunk 约 790 kB；深度优化不在本阶段。
-- CI 文件已推送但远程 job 结果未检查。
+- GitHub Actions 已核对但因账户计费锁定而在 step 启动前失败；发布前必须先解除账户锁定并重新运行至绿色。
 
 ## 18. 停止点
 
@@ -231,3 +230,43 @@ Phase 2 完成后停止。不自动合并 main，不进入 Phase 3。
 ## 19. 收尾同步记录
 
 `c007adb` 推送后实际执行 `git fetch origin`，`origin/refactor/phase2-backend-standardization...refactor/phase2-backend-standardization` 为 `0 0`。本记录使用独立文档提交保存；其最终 push 和 clean 状态在最终交付中再次核对。
+
+## 20. 最终发布前验收（2026-07-13）
+
+### Git 与远程基线
+
+- 当前分支确认是 `refactor/phase2-backend-standardization`。
+- 验收开始时 HEAD 与远端均为 `9179a0d`，工作区 clean，本地/远程 divergence 为 `0 0`。
+- 最新 GitHub Actions run `29220984583` 为 failure；两个 job 因账户计费锁定而未启动 step。
+
+### 独立 MySQL 8.0
+
+本机没有 Docker 命令，因此没有声称使用容器。验收改用已安装的 MySQL 8.0.46 二进制，在系统临时目录初始化独立 datadir，以独立进程监听 `127.0.0.1:33307`；启动使用 `--no-defaults`，不读取现有 MySQL 配置，也不使用项目 `DATABASE_URL`。
+
+| 验证 | 隔离数据库 | 真实结果 |
+|---|---|---|
+| Alembic upgrade head | `phase2_acceptance_ci_migration` | 通过，`20260713_0002 (head)` |
+| 全部后端 pytest | `phase2_acceptance_ci_pytest` | 46 passed，1 条 TestClient/httpx2 弃用警告 |
+| 完整业务链单独重跑 | `phase2_acceptance_ci_pytest` | 1 passed |
+| Alembic downgrade -1 | `phase2_acceptance_ci_migration` | 通过，回到 `20260713_0001` |
+| Alembic 再次 upgrade head | `phase2_acceptance_ci_migration` | 通过，回到 `20260713_0002 (head)` |
+
+### 启动服务与自动 E2E
+
+- 保留用户原有 `127.0.0.1:8000` 后端和 `::1:5173` 前端，不终止、不复用。
+- 隔离后端实际启动在 `127.0.0.1:18000`，所有 DB 环境变量指向 `phase2_acceptance_ci_e2e`；`/health/ready` 返回 200。
+- 隔离前端仅绑定 `127.0.0.1:5173`，通过临时 `VITE_API_BASE_URL=http://127.0.0.1:18000/api` 直连隔离后端；没有修改前端配置源码。
+- 真实 HTTP 自动 E2E 通过：注册、登录、me、admin/editor/viewer、商品 CRUD、内容拆解 CRUD、脚本与分镜 CRUD、视频任务 CRUD、知识库 CRUD/使用次数、系统设置权限、401、403。
+- 注册创建阶段实际返回 201；后续为修正验收脚本而重试相同隔离账号时按契约返回 409。
+- 前端 401 清理/跳转、403 不清理会话、角色矩阵和认证存储定向 Vitest 为 4 files / 14 tests passed。
+- 真实浏览器点击未执行：浏览器 Node 运行时连续两次启动失败并报告系统路径错误。隔离前后端进程随后已停止，用户原有服务保持运行。
+
+### 最终本地检查
+
+| 命令 | Exit | 真实结果 |
+|---|---:|---|
+| `npm run check` | 0 | lint、format、architecture、11 files/39 tests、2290 modules build 全部通过；保留大 chunk 警告 |
+| `.venv\Scripts\python.exe -m compileall app` | 0 | 全部后端模块编译通过 |
+| MySQL 环境下 `.venv\Scripts\python.exe -m pytest -q` | 0 | 46 passed，1 warning |
+
+验收结束时，独立 MySQL 端口 `33307` 已停止，临时 datadir 已删除；用户原有 `MySQL80` 服务仍为 Running。用户现有数据库没有执行任何查询、迁移或写入；没有合并 main，也没有进入 Phase 3。GitHub Actions 绿色仍被账户计费锁定阻塞。

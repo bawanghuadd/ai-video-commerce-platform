@@ -10,12 +10,16 @@ Browser
   -> src/api/*.js
   -> src/utils/request.js (唯一 Axios 实例)
   -> /api/*
-  -> FastAPI Router
+  -> FastAPI Router / Dependencies
+  -> Services
+  -> Repositories
   -> SQLAlchemy Session / Models
   -> MySQL
 ```
 
-Phase 1 保持现有物理目录，不进行 features/shared/app 大迁移。
+> 历史说明：Phase 1 保持了当时的物理目录，没有进行
+> features/shared/app 大迁移。该说明只描述 Phase 1 基线；当前后端依赖方向
+> 已由 Phase 2 的 Router → Service → Repository 分层取代，见第 5、8 节。
 
 ## 2. 前端依赖方向
 
@@ -71,18 +75,20 @@ const products = await getProductListApi()
 
 Pinia Auth Store 管理响应式状态；Router 和 Request 通过 authStorage 读取会话，Request 不依赖 Pinia，以避免循环依赖。
 
-当前仍使用 localStorage Bearer Token。HttpOnly Cookie、刷新令牌和会话撤销不属于 Phase 1。
+当前仍使用 localStorage Bearer Token。HttpOnly Cookie、刷新令牌和会话撤销不属于 Phase 2。
 
-## 5. 后端当前依赖方向
+## 5. 后端依赖方向
 
 ```text
-main.py -> app/api/*.py
-app/api/*.py -> schemas + models + database + security
-database.py -> config.py
-security.py -> config + database + User model
+main.py -> api.router -> api modules -> services -> repositories -> database/models
+                         |             |
+                         v             v
+                   dependencies      core/domain
 ```
 
-Service/Repository 分层留待后续阶段。Phase 1 不移动 Router，但通过文档和测试冻结接口，并为安全启动增加门禁。
+Phase 1 曾采用 Router 直接依赖 Schema、Model、Database 和 Security 的结构，
+并把 Service/Repository 留待后续阶段；这是历史基线，不是当前架构。
+Phase 2 已完成 Service/Repository 分层，Router 不再直接操作 ORM 或提交事务。
 
 ## 6. 数据库启动安全
 
@@ -92,7 +98,7 @@ Service/Repository 分层留待后续阶段。Phase 1 不移动 Router，但通�
 - 不打开种子 Session。
 - 不创建管理员或系统设置。
 
-仅非生产环境可通过显式开关执行开发初始化。生产环境开启任一自动数据库写入开关会在 Settings 校验阶段失败。正式数据库演进必须在后续阶段使用 Alembic。
+仅非生产环境可通过显式开关执行开发初始化。生产环境开启任一自动数据库写入开关会在 Settings 校验阶段失败。正式数据库演进使用 Phase 2 已引入的 Alembic，并且必须显式提供 `ALEMBIC_DATABASE_URL`；应用启动不会自动迁移。
 
 ## 7. 自动架构守卫
 
@@ -107,7 +113,7 @@ Service/Repository 分层留待后续阶段。Phase 1 不移动 Router，但通�
 
 守卫只读并输出规则、文件、行号和命中内容。
 
-## 8. Phase 2 后端实际架构
+## 8. Phase 2 后端实际架构细则
 
 ```text
 main -> api.router -> api modules -> services -> repositories -> database/models

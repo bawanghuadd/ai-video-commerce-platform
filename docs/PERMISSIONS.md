@@ -13,6 +13,8 @@
 
 服务端 `dependencies/permissions.py` 是权威授权点。JWT 角色 claim 不作为授权依据；每个请求重新查询数据库用户和 `is_active/role`，因此伪造 admin claim 不能把 viewer 提升为管理员。
 
+受保护请求中，Token 对应用户不存在或已停用属于 401；账号已停用时主动提交登录属于 403。前端只在 401 清理认证存储，普通 403 不清理已有会话。
+
 兼容映射：既有 `user` 按 editor 授权以保持原业务能力；迁移将其更新为 editor。新注册用户是 viewer。未知角色采用最小权限并拒绝访问，不会自动变为 admin。
 
 ## 前端
