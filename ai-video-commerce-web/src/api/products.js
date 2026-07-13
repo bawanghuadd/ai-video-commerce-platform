@@ -1,38 +1,23 @@
-import request from '../utils/request'
+import request from '../utils/request.js'
 
-export function getProductListApi() {
-  return request({
-    url: '/products',
-    method: 'get',
-  })
+const PRODUCTS_BASE_URL = '/products'
+
+export function getProductListApi(params = {}) {
+  return request.get(PRODUCTS_BASE_URL, { params })
 }
 
 export function getProductDetailApi(productId) {
-  return request({
-    url: `/products/${productId}`,
-    method: 'get',
-  })
+  return request.get(`${PRODUCTS_BASE_URL}/${productId}`)
 }
 
 export function createProductApi(data) {
-  return request({
-    url: '/products',
-    method: 'post',
-    data,
-  })
+  return request.post(PRODUCTS_BASE_URL, data)
 }
 
 export function updateProductApi(productId, data) {
-  return request({
-    url: `/products/${productId}`,
-    method: 'put',
-    data,
-  })
+  return request.put(`${PRODUCTS_BASE_URL}/${productId}`, data)
 }
 
 export function deleteProductApi(productId) {
-  return request({
-    url: `/products/${productId}`,
-    method: 'delete',
-  })
+  return request.delete(`${PRODUCTS_BASE_URL}/${productId}`)
 }

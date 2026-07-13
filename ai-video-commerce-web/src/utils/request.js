@@ -2,6 +2,20 @@ import axios from 'axios'
 
 import { clearAuthData, getAccessToken } from './authStorage.js'
 
+export function resolveSuccessData(response) {
+  const payload = response?.data
+
+  if (
+    payload &&
+    typeof payload === 'object' &&
+    Object.prototype.hasOwnProperty.call(payload, 'code') &&
+    Object.prototype.hasOwnProperty.call(payload, 'data')
+  ) {
+    return payload.data
+  }
+
+  return payload
+}
 export function createUnauthorizedHandler(options = {}) {
   const clearAuth = options.clearAuth || clearAuthData
   const getPath = options.getPath || (() => window.location.pathname)
@@ -23,7 +37,7 @@ export function createUnauthorizedHandler(options = {}) {
 }
 
 const request = axios.create({
-  baseURL: 'http://127.0.0.1:8000/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
   timeout: 10000,
 })
 
@@ -43,7 +57,7 @@ request.interceptors.request.use(
 )
 
 request.interceptors.response.use(
-  (response) => response.data,
+  resolveSuccessData,
   (error) => {
     handleUnauthorized(error)
     return Promise.reject(error)

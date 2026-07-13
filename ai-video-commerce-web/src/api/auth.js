@@ -30,13 +30,3 @@ export function getCurrentUserApi() {
     `${AUTH_BASE_URL}/me`,
   )
 }
-
-/**
- * 兼容项目中可能存在的旧函数名称。
- * 后续确认没有旧调用后，可以删除这些别名。
- */
-export const getMeApi =
-  getCurrentUserApi
-
-export const getMyProfileApi =
-  getCurrentUserApi

@@ -1,29 +1,43 @@
+function isBackendEnvelope(value) {
+  return Boolean(
+    value &&
+      typeof value === 'object' &&
+      Object.prototype.hasOwnProperty.call(value, 'code') &&
+      Object.prototype.hasOwnProperty.call(value, 'data'),
+  )
+}
+
+function isAxiosResponse(value) {
+  return Boolean(
+    value &&
+      typeof value === 'object' &&
+      Object.prototype.hasOwnProperty.call(value, 'data') &&
+      (
+        Object.prototype.hasOwnProperty.call(value, 'status') ||
+        Object.prototype.hasOwnProperty.call(value, 'headers') ||
+        Object.prototype.hasOwnProperty.call(value, 'config')
+      ),
+  )
+}
+
 /**
- * 从不同格式的接口响应中提取业务数据。
- *
- * 当前 Axios 拦截器已经自动解包 data，
- * 这里暂时保留兼容逻辑，避免旧页面立即报错。
+ * Transitional compatibility for legacy callers.
+ * New API callers already receive business data from request.js.
  */
 export function resolveApiData(response) {
-  if (response?.data?.data !== undefined) {
-    return response.data.data
+  if (isBackendEnvelope(response)) {
+    return response.data
   }
 
-  if (response?.data !== undefined) {
-    return response.data
+  if (isAxiosResponse(response)) {
+    return isBackendEnvelope(response.data)
+      ? response.data.data
+      : response.data
   }
 
   return response
 }
 
-/**
- * 从接口响应中提取列表数据。
- *
- * 兼容以下结构：
- * - 数组
- * - { items: [] }
- * - { list: [] }
- */
 export function resolveApiList(response) {
   const data = resolveApiData(response)
 
@@ -42,9 +56,6 @@ export function resolveApiList(response) {
   return []
 }
 
-/**
- * 从 Axios 或 FastAPI 错误中提取可读信息。
- */
 export function getApiErrorMessage(
   error,
   fallbackMessage = '请求失败',

@@ -17,12 +17,17 @@ import {
 
 import {
   getProductListApi,
-} from '../api/products'
+} from '../api/products.js'
 
 import {
   createContentAnalysisApi,
   getContentAnalysisListApi,
-} from '../api/contentAnalysis'
+} from '../api/contentAnalysis.js'
+
+import {
+  getApiErrorMessage,
+  resolveApiList,
+} from '../utils/apiResponse.js'
 
 
 /* ==============================
@@ -134,71 +139,6 @@ const currentStepInfo = computed(() => {
 
 
 /* ==============================
-   接口数据兼容处理
-================================ */
-
-function resolveListResponse(response) {
-  if (Array.isArray(response)) {
-    return response
-  }
-
-  /*
-   * Axios 拦截器已经返回 response.data 时：
-   * {
-   *   code: 200,
-   *   data: [...]
-   * }
-   */
-  if (Array.isArray(response?.data)) {
-    return response.data
-  }
-
-  /*
-   * Axios 返回完整响应时：
-   * {
-   *   data: {
-   *     code: 200,
-   *     data: [...]
-   *   }
-   * }
-   */
-  if (Array.isArray(response?.data?.data)) {
-    return response.data.data
-  }
-
-  return []
-}
-
-function getErrorMessage(
-  error,
-  fallbackMessage,
-) {
-  const detail =
-    error?.response?.data?.detail
-
-  if (typeof detail === 'string') {
-    return detail
-  }
-
-  if (
-    Array.isArray(detail) &&
-    detail.length > 0
-  ) {
-    return (
-      detail[0]?.msg ||
-      fallbackMessage
-    )
-  }
-
-  return (
-    error?.response?.data?.message ||
-    error?.message ||
-    fallbackMessage
-  )
-}
-
-
-/* ==============================
    加载商品
 ================================ */
 
@@ -210,7 +150,7 @@ async function loadProducts() {
       await getProductListApi()
 
     productList.value =
-      resolveListResponse(response)
+      resolveApiList(response)
 
     if (
       !selectedProductId.value &&
@@ -221,7 +161,7 @@ async function loadProducts() {
     }
   } catch (error) {
     ElMessage.error(
-      getErrorMessage(
+      getApiErrorMessage(
         error,
         '商品列表加载失败',
       ),
@@ -252,10 +192,10 @@ async function loadAnalysisResults() {
       })
 
     analysisList.value =
-      resolveListResponse(response)
+      resolveApiList(response)
   } catch (error) {
     ElMessage.error(
-      getErrorMessage(
+      getApiErrorMessage(
         error,
         '分析结果加载失败',
       ),
@@ -375,7 +315,7 @@ async function startAnalysis() {
     await loadAnalysisResults()
   } catch (error) {
     ElMessage.error(
-      getErrorMessage(
+      getApiErrorMessage(
         error,
         '内容分析失败',
       ),

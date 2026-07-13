@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 
-import { getHealthStatus } from '../api/system'
+import { getHealthStatus } from '../api/system.js'
 
 const loading = ref(false)
 const backendStatus = ref('等待检查')
@@ -16,8 +16,11 @@ async function checkBackend() {
   try {
     const response = await getHealthStatus()
 
-    backendStatus.value = response.message
-    serviceName.value = response.data.service
+    backendStatus.value =
+      response.status === 'running'
+        ? '服务正常'
+        : '服务状态未知'
+    serviceName.value = response.service
     connectionSuccess.value = true
 
     ElMessage.success('前后端连接成功')

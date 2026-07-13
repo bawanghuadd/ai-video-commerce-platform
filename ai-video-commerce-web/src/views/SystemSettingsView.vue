@@ -23,7 +23,11 @@ import {
 import {
   getSystemSettingsApi,
   updateSystemSettingsApi,
-} from '../api/systemSettings'
+} from '../api/systemSettings.js'
+
+import {
+  getApiErrorMessage,
+} from '../utils/apiResponse.js'
 
 
 /* ==============================
@@ -226,72 +230,6 @@ const temperatureDescription = computed(() => {
 
 
 /* ==============================
-   接口数据解析
-================================ */
-
-function resolveSettingsResponse(response) {
-  /*
-   * 兼容：
-   * 1. Axios返回完整response
-   * 2. Axios拦截器直接返回response.data
-   */
-
-  if (
-    response?.data?.data &&
-    typeof response.data.data === 'object'
-  ) {
-    return response.data.data
-  }
-
-  if (
-    response?.data &&
-    typeof response.data === 'object' &&
-    'platform_name' in response.data
-  ) {
-    return response.data
-  }
-
-  if (
-    response &&
-    typeof response === 'object' &&
-    'platform_name' in response
-  ) {
-    return response
-  }
-
-  return null
-}
-
-function getErrorMessage(
-  error,
-  fallbackMessage,
-) {
-  const detail =
-    error?.response?.data?.detail
-
-  if (typeof detail === 'string') {
-    return detail
-  }
-
-  if (
-    Array.isArray(detail) &&
-    detail.length > 0
-  ) {
-    return (
-      detail[0]?.msg ||
-      fallbackMessage
-    )
-  }
-
-  return (
-    error?.response?.data?.message ||
-    error?.message ||
-    fallbackMessage
-  )
-}
-
-
-/* ==============================
    表单赋值
 ================================ */
 
@@ -356,11 +294,8 @@ async function loadSystemSettings() {
   loading.value = true
 
   try {
-    const response =
-      await getSystemSettingsApi()
-
     const settings =
-      resolveSettingsResponse(response)
+      await getSystemSettingsApi()
 
     if (!settings) {
       throw new Error(
@@ -376,7 +311,7 @@ async function loadSystemSettings() {
       )
   } catch (error) {
     ElMessage.error(
-      getErrorMessage(
+      getApiErrorMessage(
         error,
         '系统设置加载失败',
       ),
@@ -448,13 +383,10 @@ async function saveSystemSettings() {
   }
 
   try {
-    const response =
+    const settings =
       await updateSystemSettingsApi(
         submitData,
       )
-
-    const settings =
-      resolveSettingsResponse(response)
 
     if (settings) {
       applySettings(settings)
@@ -470,7 +402,7 @@ async function saveSystemSettings() {
     )
   } catch (error) {
     ElMessage.error(
-      getErrorMessage(
+      getApiErrorMessage(
         error,
         '系统设置保存失败',
       ),

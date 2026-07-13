@@ -16,11 +16,9 @@ describe('apiResponse', () => {
 
     expect(
       resolveApiData({
-        data: {
-          code: 200,
-          message: 'ok',
-          data,
-        },
+        code: 200,
+        message: 'ok',
+        data,
       }),
     ).toBe(data)
   })
