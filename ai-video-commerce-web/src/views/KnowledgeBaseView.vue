@@ -6,7 +6,6 @@ import {
   Star,
 } from '@element-plus/icons-vue'
 
-// import AppStatCard from '../components/AppStatCard.vue'
 import AppStatCard from '../components/common/AppStatCard.vue'
 import KnowledgeCard from '../components/knowledge/KnowledgeCard.vue'
 import KnowledgeDetailDrawer from '../components/knowledge/KnowledgeDetailDrawer.vue'

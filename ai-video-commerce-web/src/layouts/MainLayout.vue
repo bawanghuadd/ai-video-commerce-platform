@@ -72,52 +72,31 @@ const businessMenuItems = [
     icon: Collection,
     disabled: false,
   },
-  // {
-  //   routeName: 'videos',
-  //   label: '视频管理',
-  //   icon: VideoCamera,
-  //   disabled: true,
-  // },
   {
-  routeName: 'videos',
-  label: '视频管理',
-  icon: VideoCamera,
-  disabled: false,
-},
+    routeName: 'videos',
+    label: '视频管理',
+    icon: VideoCamera,
+    disabled: false,
+  },
   {
     routeName: 'traffic-analysis',
     label: '投流分析',
     icon: TrendCharts,
     disabled: false,
   },
-  // {
-  //   routeName: 'knowledge-base',
-  //   label: '知识库',
-  //   icon: Collection,
-  //   disabled: true,
-  // },
-
   {
-  routeName: 'knowledge-base',
-  label: '知识库',
-  icon: Collection,
-  disabled: false,
-}, 
-
-  // {
-  //   routeName: 'settings',
-  //   label: '系统设置',
-  //   icon: Setting,
-  //   disabled: true,
-  // },
+    routeName: 'knowledge-base',
+    label: '知识库',
+    icon: Collection,
+    disabled: false,
+  },
   {
-  routeName: 'settings',
-  label: '系统设置',
-  icon: Setting,
-  disabled: false,
-},
+    routeName: 'settings',
+    label: '系统设置',
+    icon: Setting,
+    disabled: false,
+  },
 ]
-
 
 /* ==============================
    当前菜单
